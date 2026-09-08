@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: ratibu-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ratibu
+    username: ratibu
+    password: ratibu
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # schema is owned by Flyway migrations, not Hibernate auto-DDL
+    open-in-view: false     # keep persistence access inside the application/domain layers, not the web layer
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+ratibu:
+  jwt:
+    # placeholder - move to a real secret manager before any non-local environment
+    secret: "CHANGE_ME_LOCAL_DEV_ONLY"
+    access-token-ttl-minutes: 30
+    refresh-token-ttl-days: 30
+
+logging:
+  level:
+    com.ratibu: DEBUG
