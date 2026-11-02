@@ -1,136 +1,109 @@
 # Ratibu 2.0
 
-> **Offline-first business management and financial tracking for small businesses.**
+> **An offline-first business management platform for small businesses.**
 
-Ratibu is a business management platform designed for small businesses that need a simple way to manage their operations, customers, services, workers, bookings, payments, expenses, cash, and business performance.
+Ratibu is a business management and financial tracking platform designed to help small businesses manage their day-to-day operations from one place.
 
-Ratibu 2.0 is a deliberate redesign of the original concept, with the architecture being defined **before feature implementation**.
+It brings together business management, multiple shop locations, workers, clients, services, bookings, payments, expenses and cash management.
 
-The project is currently transitioning from **architecture and domain design into implementation**.
+Ratibu 2.0 is a ground-up architectural redesign of the original Ratibu concept. Its focus is to establish a reliable domain model, clear business rules and an extensible architecture before building out the application features.
 
----
-
-## Project Status
-
-**Current stage: Architecture & Foundation**
-
-The first phase of Ratibu 2.0 has focused on understanding and documenting the business domain before writing substantial application code.
-
-Completed so far:
-
-* Domain model defined
-* Aggregate boundaries defined
-* Architectural Decision Records (ADRs) established
-* Offline-first strategy defined
-* Authentication and authorization model defined
-* Financial and cash-management rules defined
-* Maven/Spring Boot backend created
-* Backend package structure established
-* Shared domain primitives established
-* Application entry point established
-
-The next phase is to implement the aggregates and their use cases incrementally, using the ADRs as the architectural reference.
+**Project status:** Active development — architecture and backend foundation.
 
 ---
 
-# Why Ratibu?
+## Table of Contents
 
-Small businesses often manage their operations using a mixture of:
-
-* Paper notebooks
-* Appointment books
-* WhatsApp
-* Spreadsheets
-* Separate cash books
-* Personal records
-
-This makes it difficult to get a reliable picture of the business.
-
-A business owner should be able to answer questions such as:
-
-* How much money did the business receive today?
-* How much physical cash should be available?
-* Which services generate the most revenue?
-* Which workers are providing which services?
-* How many bookings were completed or cancelled?
-* Which payments are still outstanding?
-* How is each shop performing?
-* What happened while the business was offline?
-
-Ratibu aims to bring these concerns into one system without assuming that the business always has a reliable internet connection.
+- [The Problem](#the-problem)
+- [Project Vision](#project-vision)
+- [Core Domain Model](#core-domain-model)
+- [Architectural Principles](#architectural-principles)
+- [Offline-First Architecture](#offline-first-architecture)
+- [Backend Architecture](#backend-architecture)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [Architectural Decision Records](#architectural-decision-records)
+- [Development Roadmap](#development-roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-# Architectural Approach
+## The Problem
 
-Ratibu 2.0 is being designed around a few fundamental principles.
+Many small businesses operate using a combination of:
 
-## Architecture First
+- Paper-based records and cash books.
+- WhatsApp conversations.
+- Appointment books and spreadsheets.
+- Separate customer and worker records.
+- Manual payment and expense tracking.
 
-The project intentionally started with architectural decisions rather than controllers and database tables.
+As a business grows, keeping these records consistent becomes increasingly difficult.
 
-The ADRs define:
+Business owners need reliable answers to questions such as:
 
-* What the major business concepts are
-* Where business rules belong
-* Which concepts should be aggregates
-* How aggregates interact
-* How users gain access to businesses
-* How multiple shops are represented
-* How offline operations are synchronized
-* How financial events are modeled
-* How conflicts are resolved
+- How much money did the business receive today?
+- How much physical cash should be available?
+- Which services generate the most revenue?
+- Which workers are responsible for particular services?
+- Which bookings have been completed or cancelled?
+- Which payments are outstanding?
+- How are individual shop locations performing?
+- What happened when the business was offline?
 
-The implementation is expected to follow these decisions rather than allowing the database or framework to dictate the domain model.
+Ratibu aims to provide a unified system for answering these questions without assuming that a business always has reliable internet connectivity.
+
+## Project Vision
+
+Ratibu is being designed to support:
+
+1. **Business management** — manage business information, workers, clients and services.
+2. **Multi-shop operations** — manage multiple locations under one business.
+3. **Booking management** — organize appointments and track their lifecycle.
+4. **Financial tracking** — record payments, expenses and other financial events.
+5. **Cash management** — maintain cash books and support end-of-day reconciliation.
+6. **Offline operation** — allow clients to continue working without connectivity and synchronize when online.
+7. **Business insights** — derive useful operational and financial information from business records.
+
+The platform is intended to serve both Android and Progressive Web App (PWA) clients through a shared backend.
 
 ---
 
-# Domain Model
+## Core Domain Model
 
 Ratibu is organized around business concepts rather than generic CRUD resources.
 
-The current aggregate model includes:
+The domain model currently identifies the following aggregates:
 
-```text
-Business
-Shop
-User Account
-Business Membership
-Worker
-Client
-Catalog / Service
-Booking
-Payment
-Expense
-Financial Event
-Cash Book
-Insight
-```
+| Aggregate | Responsibility |
+|---|---|
+| Business | Represents the business organization. |
+| Shop | Represents an operational location. |
+| Account | Represents a user's identity. |
+| Membership | Defines a user's relationship with a business. |
+| Worker | Manages business worker profiles and capabilities. |
+| Client | Represents business customers. |
+| Catalog | Manages services and their configuration. |
+| Booking | Manages appointments and their lifecycle. |
+| Payment | Records money received. |
+| Expense | Records business expenditure. |
+| Financial Event | Records other business-level financial activity. |
+| Cash Book | Tracks physical cash and reconciliation. |
+| Insight | Provides derived business information. |
 
-Each aggregate owns its own state, rules, and invariants.
+Each aggregate is responsible for its own state, business rules and invariants.
 
-Aggregates do not directly reach into each other's internal state.
+Aggregates communicate through defined application boundaries, stable identities and domain events rather than directly modifying one another's internal state.
 
-Instead, coordination occurs through stable identities, application services, and domain events.
+### Business and Shop Structure
 
----
+A Business represents the organizational boundary, while a Shop represents an operational and financial boundary within that business.
 
-# Business and Shop
-
-A **Business** represents the organizational boundary.
-
-A **Shop** represents an operational and financial boundary within a business.
-
-Ratibu therefore supports both simple and multi-shop businesses.
-
-### Single shop
-
-```text
-Business
-└── Shop
-```
-
-### Multiple shops
+A business can start with one shop and expand to multiple locations.
 
 ```text
 Business
@@ -139,688 +112,559 @@ Business
 └── Shop C
 ```
 
-This allows a business owner to start with one shop without introducing unnecessary complexity while still supporting businesses that grow into multiple locations.
+This structure allows Ratibu to support both independent businesses and growing multi-location operations.
 
----
+### Identity and Membership
 
-# Identity and Membership
+Ratibu separates user authentication from business participation.
 
-Ratibu separates authentication identity from business participation.
+- **Account:** Represents a person's identity.
+- **Membership:** Represents their relationship with a particular business.
+- **Role and permissions:** Define what they can do.
+- **Shop assignments:** Define the locations they can access.
 
-A:
+A user does not automatically gain access to every business in the system.
 
-**User Account**
+### Bookings and Payments
 
-represents a person's global identity.
+Bookings and payments are separate domain concepts.
 
-A:
-
-**Business Membership**
-
-represents that person's relationship with a particular business.
-
-Conceptually:
-
-```text
-User Account
-     │
-     ▼
-Business Membership
-     │
-     ├── Business
-     ├── Role
-     └── Shop Assignment(s)
-```
-
-A user therefore does not automatically gain access to every business in the system.
-
-Access is established through membership and authorization rules.
-
----
-
-# Worker Model
-
-A **Worker Profile** represents a worker from the perspective of a business.
-
-A worker does not necessarily need a Ratibu login.
-
-Therefore:
-
-```text
-Worker Profile
-       │
-       ├── Can exist without User Account
-       │
-       └── May be associated with a Business Membership
-```
-
-This distinction allows a business to keep operational records for workers who do not use the application themselves.
-
-Worker-service capabilities are also treated as part of the domain rather than being left entirely to the UI.
-
----
-
-# Clients
-
-Clients represent the business's customer identity.
-
-A client is **business-wide**, rather than being duplicated for every shop.
-
-For example:
-
-```text
-Business
-│
-├── Shop A
-│
-├── Shop B
-│
-└── Client
-```
-
-The same client can therefore interact with different shops belonging to the same business without creating separate customer identities.
-
-Duplicate detection and client identity rules are part of the domain model.
-
----
-
-# Catalog and Services
-
-Services are defined at the business level while allowing individual shops to determine:
-
-* Availability
-* Pricing
-* Service-specific configuration
-
-Ratibu also preserves historical pricing information where necessary.
-
-This means changing the current service price should not rewrite historical transactions.
-
----
-
-# Bookings
-
-A Booking represents the operational scheduling and lifecycle of an appointment.
-
-Its lifecycle is explicitly modeled.
+A booking represents an appointment and its operational lifecycle.
 
 ```text
 SCHEDULED
-    │
-    ▼
+    |
+    v
 IN_PROGRESS
-    │
-    ▼
+    |
+    v
 COMPLETED
 ```
 
 Alternative outcomes include:
 
-```text
-SCHEDULED ──► CANCELLED
+- CANCELLED
+- NO_SHOW
 
-SCHEDULED ──► NO_SHOW
-```
+A booking also distinguishes between its expected price and final price.
 
-Bookings also distinguish between:
+A payment represents actual money received. It can reference a booking or exist independently.
 
-* **Expected Price**
-* **Final Price**
+This distinction is important because:
 
-The expected price represents what was anticipated at booking time.
+**A booking does not automatically mean that a payment has been received.**
 
-The final price represents what was actually charged.
+### Financial Management
 
-This distinction is important for accurate historical reporting.
+Ratibu distinguishes between:
 
----
+- Payments — money received.
+- Expenses — money spent.
+- Financial events — other business-level financial activity.
+- Cash book entries — physical cash movements and reconciliation.
 
-# Payments
-
-A Payment represents **actual money received**.
-
-Payment is deliberately separate from Booking.
-
-A payment may:
-
-* Reference a booking
-* Exist without a booking
-* Be received in cash
-* Be received through a non-cash method
-* Represent an overpayment
-
-This separation prevents the system from assuming:
-
-> booking = payment
-
-Those are different business events.
+The financial model is designed to support accurate reporting without confusing expected revenue, actual payments and physical cash.
 
 ---
 
-# Expenses
+## Architectural Principles
 
-Expenses represent money spent by the business.
+Ratibu 2.0 follows an architecture-first development approach.
 
-They are separate from client payments.
+The guiding principle is:
 
-The financial model therefore distinguishes between:
+**Understand the domain → Define the architecture → Document decisions → Implement → Test.**
 
-```text
-Money coming in
-      │
-      └── Payments
+### Domain-Driven Design
 
+The application is organized around business domains and aggregate boundaries.
 
-Money going out
-      │
-      └── Expenses
-```
+Each aggregate owns its business rules and protects its invariants.
 
-This distinction provides a cleaner foundation for financial reporting and cash reconciliation.
+The database schema and framework implementation should support the domain model rather than dictate it.
 
----
+### Separation of Concerns
 
-# Financial Events
+The backend follows four architectural layers:
 
-Not every financial event belongs to a specific shop.
+- **Domain:** Business entities, value objects, aggregate roots, domain events and invariants.
+- **Application:** Use cases and application services.
+- **Infrastructure:** Persistence, repository implementations and technical integrations.
+- **API:** REST controllers, request DTOs and response DTOs.
 
-Ratibu therefore supports business-level financial events.
+The domain layer is designed to remain independent of Spring, JPA and HTTP concerns.
 
-For example, an owner may inject cash into the business without that event belonging to a particular shop.
+### Explicit Business Rules
 
-This prevents the domain model from artificially forcing every financial event into a shop.
+Important business decisions are documented instead of being left to incidental implementation details.
 
----
+Examples include:
 
-# Cash Book
-
-The Cash Book is responsible for tracking physical cash and end-of-day reconciliation.
-
-Ratibu deliberately distinguishes:
-
-* Money received
-* Payment method
-* Physical cash
-* Cash-book records
-* End-of-day reconciliation
-
-Cash can also be recorded during the day rather than forcing the business to enter everything as one large end-of-day transaction.
-
-The model includes explicit handling for conflicting end-of-day records, including the **supersede-and-flag** rule defined by the ADRs.
+- Booking lifecycle transitions.
+- Payment and booking separation.
+- Historical pricing.
+- Shop-level financial boundaries.
+- Membership-based authorization.
+- Cash reconciliation.
+- Offline synchronization and conflict resolution.
 
 ---
 
-# Offline First
+## Offline-First Architecture
 
-Offline operation is a fundamental architectural requirement.
+Offline operation is a fundamental architectural requirement, not an optional feature.
 
-It is not treated as an optional feature added later.
+Ratibu is designed around the assumption that businesses may have unreliable or intermittent internet connectivity.
 
-The client must be able to create operations while offline and synchronize them when connectivity becomes available.
+The synchronization architecture is based on:
 
-The architecture therefore uses:
-
-* Client-generated `StableId`s
-* Idempotent synchronization
-* Synchronization status
-* Aggregate-aware conflict resolution
-* Explicit domain rules
-* Separation between local operations and server synchronization
+- Client-generated `StableId` identifiers.
+- Idempotent synchronization operations.
+- Synchronization status tracking.
+- Explicit conflict handling.
+- Aggregate-aware conflict resolution.
+- Separation of synchronization mechanics from business rules.
 
 Conceptually:
 
 ```text
-              ┌───────────────┐
-              │ Android / PWA │
-              └───────┬───────┘
-                      │
-                 Local operation
-                      │
-                      ▼
-              ┌───────────────┐
-              │ Sync Engine   │
-              └───────┬───────┘
-                      │
-              Synchronization
-                      │
-                      ▼
-              ┌───────────────┐
-              │ Domain Model  │
-              └───────────────┘
+        Android / PWA
+              |
+              v
+       Local Operations
+              |
+              v
+        Sync Engine
+              |
+              v
+       Backend API
+              |
+              v
+        Domain Model
+              |
+              v
+          Database
 ```
 
-The synchronization engine handles the generic mechanics.
+The synchronization engine handles generic synchronization concerns.
 
-Individual aggregates remain responsible for their own domain-specific conflict rules.
+Individual aggregates remain responsible for their own business-specific conflict rules.
+
+For example, cash-book reconciliation conflicts belong to the Cash Book domain rather than the generic synchronization engine.
 
 ---
 
-# Business Insights
+## Backend Architecture
 
-Insights are treated as **derived information**, not authoritative business state.
-
-The source of truth remains the underlying domain data.
-
-```text
-Bookings ──────┐
-Payments ──────┤
-Expenses ──────┼──► Business Insights
-Cash Book ─────┤
-Services ──────┘
-```
-
-This allows insights to be regenerated from the underlying data instead of maintaining another competing source of truth.
-
-Potential insights include:
-
-* Revenue trends
-* Service performance
-* Worker performance
-* Shop performance
-* Cash-flow information
-* Booking trends
-
----
-
-# Backend Architecture
-
-The backend follows a consistent four-layer structure for each aggregate:
+Each aggregate follows a consistent package structure:
 
 ```text
 aggregate/
-│
-├── domain/
-├── application/
-├── infrastructure/
-└── api/
-```
-
-### Domain
-
-Contains the business model:
-
-* Aggregate roots
-* Value objects
-* Domain events
-* Repository interfaces
-* Business rules
-* Invariants
-
-The domain layer should remain independent of Spring, JPA, HTTP, and other infrastructure concerns.
-
-### Application
-
-Contains use cases and application services.
-
-The application layer coordinates domain behavior without reaching into another aggregate's internal implementation.
-
-### Infrastructure
-
-Contains technical implementations such as:
-
-* JPA entities
-* Spring Data repositories
-* Repository implementations
-* Persistence mappers
-
-### API
-
-Contains:
-
-* REST controllers
-* Request DTOs
-* Response DTOs
-
-Controllers are intentionally kept thin.
-
----
-
-# Current Backend Structure
-
-```text
-ratibu-backend/
-└── src/
-    └── main/
-        ├── java/
-        │   └── com/
-        │       └── ratibu/
-        │           │
-        │           ├── account/
-        │           ├── booking/
-        │           ├── business/
-        │           ├── cashbook/
-        │           ├── catalog/
-        │           ├── client/
-        │           ├── expense/
-        │           ├── financeevent/
-        │           ├── insight/
-        │           ├── membership/
-        │           ├── payment/
-        │           ├── shop/
-        │           ├── worker/
-        │           │
-        │           ├── common/
-        │           │   ├── domain/
-        │           │   ├── exception/
-        │           │   └── web/
-        │           │
-        │           ├── config/
-        │           ├── security/
-        │           ├── sync/
-        │           │
-        │           └── RatibuApplication.java
-        │
-        └── resources/
-            └── application.yml
-```
-
-Each aggregate currently has its four architectural layers scaffolded:
-
-```text
-business/
 ├── api/
 ├── application/
 ├── domain/
 └── infrastructure/
 ```
 
-The same pattern exists for the other aggregates.
+### Domain Layer
 
-At this stage, most of these packages contain architectural documentation (`package-info.java`) rather than completed feature implementations. This is intentional.
+Contains:
 
----
+- Aggregate roots.
+- Entities and value objects.
+- Domain events.
+- Repository interfaces.
+- Business rules and invariants.
 
-# Shared Domain Kernel
+### Application Layer
 
-Shared domain primitives live under:
+Contains:
 
-```text
-com.ratibu.common.domain
-```
+- Use cases.
+- Application services.
+- Aggregate coordination.
+- Transaction boundaries.
 
-Current primitives include:
+### Infrastructure Layer
 
-```text
-AggregateRoot
-DomainEvent
-Money
-StableId
-```
+Contains:
 
-### `AggregateRoot`
+- JPA entities.
+- Spring Data repositories.
+- Repository adapters.
+- Persistence mappings.
 
-Provides common aggregate identity and domain-event handling.
+### API Layer
 
-### `DomainEvent`
+Contains:
 
-Represents meaningful events raised by aggregates.
+- REST controllers.
+- Request DTOs.
+- Response DTOs.
+- API-level validation.
 
-### `Money`
+Controllers are intended to remain thin, delegating business operations to the application layer.
 
-Provides exact monetary representation and arithmetic without relying on floating-point calculations.
+### Shared Domain Kernel
 
-### `StableId`
+Shared domain primitives are located under:
 
-Provides client-generatable identity suitable for an offline-first system.
+`com.ratibu.common.domain`
 
----
+| Component | Responsibility |
+|---|---|
+| `AggregateRoot` | Common aggregate identity and domain-event handling. |
+| `DomainEvent` | Represents meaningful domain occurrences. |
+| `Money` | Provides precise monetary representation and arithmetic. |
+| `StableId` | Provides stable, client-generatable identifiers for offline operations. |
 
-# Synchronization
-
-Synchronization is isolated under:
-
-```text
-com.ratibu.sync
-```
-
-It is responsible for generic synchronization concerns such as:
-
-* Operation submission
-* Idempotency
-* Stable IDs
-* Synchronization status
-* Conflict dispatch
-
-It does not own aggregate-specific business rules.
-
-For example, Cash Book conflict resolution belongs to the Cash Book domain rather than the generic synchronization engine.
+These primitives provide common foundations without forcing unrelated aggregates to share business logic.
 
 ---
 
-# Security
+## Technology Stack
 
-Security is isolated under:
+### Backend
 
-```text
-com.ratibu.security
-```
+| Technology | Purpose |
+|---|---|
+| Java 21 | Primary programming language |
+| Spring Boot 3.3.4 | Application framework |
+| Spring Web | REST API development |
+| Spring Validation | Request validation |
+| Spring Data JPA | Persistence abstraction |
+| Spring Security | Authentication and authorization |
+| PostgreSQL | Relational database |
+| Flyway | Database schema migrations |
+| JJWT 0.12.6 | JWT infrastructure |
+| Lombok | Boilerplate reduction |
+| Maven | Build and dependency management |
 
-and configuration concerns under:
+### Testing
 
-```text
-com.ratibu.config
-```
+- JUnit 5 through Spring Boot Test.
+- Spring Security Test.
+- H2 for database testing.
 
-The planned authentication model uses JWT-based authentication.
+### Planned Clients
 
-Authorization is based on the combination of:
-
-```text
-User Account
-        +
-Business Membership
-        +
-Role
-        +
-Shop Assignment
-        +
-Permission
-```
-
-Server-side authorization is the actual security boundary.
+- Android application.
+- Progressive Web Application (PWA).
 
 ---
 
-# Technology Stack
+## Project Structure
 
-## Backend
-
-* **Java 21**
-* **Spring Boot 3.3.4**
-* Spring Web
-* Spring Validation
-* Spring Data JPA
-* Spring Security
-* PostgreSQL
-* Flyway
-* JJWT
-* Maven
-
-## Clients
-
-The backend is designed to serve:
-
-* Android
-* PWA / Web
-
-Both clients are expected to participate in the offline-first synchronization model.
-
----
-
-# Architectural Decision Records
-
-The `docs/` directory contains the project's Architectural Decision Records.
-
-The ADRs are a central part of the project rather than supplementary documentation.
-
-They define decisions around:
-
-* Aggregate boundaries
-* Business and shop structure
-* User accounts and memberships
-* Workers
-* Clients
-* Services and catalog
-* Booking lifecycle
-* Payments
-* Expenses
-* Cash management
-* Business-level financial events
-* Insights
-* Authorization
-* Offline-first behavior
-* Stable identifiers
-* Synchronization
-* Conflict resolution
-* Layering and dependency direction
-
-The ADRs provide the architectural context behind the structure found in the codebase.
-
----
-
-# Development Philosophy
-
-Ratibu 2.0 follows:
-
-> **Understand the domain → make the architectural decision → document it → implement it.**
-
-The project intentionally avoids beginning with a large collection of:
-
-* Controllers
-* Services
-* Repositories
-* JPA entities
-* Database tables
-
-without first establishing what those components actually represent.
-
-The goal is to build a system where the code reflects the business rather than forcing the business into a generic CRUD structure.
-
----
-
-# Development Roadmap
-
-## Phase 1 — Architecture & Foundation
-
-* [x] Define domain model
-* [x] Define aggregate boundaries
-* [x] Document architectural decisions
-* [x] Define authorization model
-* [x] Define offline-first strategy
-* [x] Define financial rules
-* [x] Create backend scaffold
-* [x] Create Maven/Spring Boot project
-* [x] Establish shared domain primitives
-* [x] Establish aggregate package structure
-* [x] Create application entry point
-
-## Phase 2 — Domain Implementation
-
-* [ ] Implement Business
-* [ ] Implement Shop
-* [ ] Implement Account
-* [ ] Implement Membership
-* [ ] Implement Worker
-* [ ] Implement Client
-* [ ] Implement Catalog
-* [ ] Implement Booking
-* [ ] Implement Payment
-* [ ] Implement Expense
-* [ ] Implement Financial Event
-* [ ] Implement Cash Book
-* [ ] Implement Insight
-
-## Phase 3 — Persistence
-
-* [ ] Define database schema
-* [ ] Create Flyway migrations
-* [ ] Implement JPA entities
-* [ ] Implement repository adapters
-* [ ] Implement persistence mappers
-* [ ] Add persistence integration tests
-
-## Phase 4 — Application Layer
-
-* [ ] Implement use cases
-* [ ] Implement application services
-* [ ] Implement aggregate coordination
-* [ ] Add application-layer tests
-
-## Phase 5 — API & Security
-
-* [ ] Implement REST APIs
-* [ ] Implement request validation
-* [ ] Implement JWT authentication
-* [ ] Implement authorization
-* [ ] Add API integration tests
-
-## Phase 6 — Synchronization
-
-* [ ] Implement sync operation model
-* [ ] Implement idempotency
-* [ ] Implement sync status tracking
-* [ ] Implement conflict dispatch
-* [ ] Implement aggregate-specific conflict rules
-* [ ] Add offline synchronization tests
-
-## Phase 7 — Clients
-
-* [ ] Android client
-* [ ] Local persistence
-* [ ] Offline operation queue
-* [ ] Synchronization client
-* [ ] PWA client
-
-## Phase 8 — Business Intelligence
-
-* [ ] Revenue insights
-* [ ] Service insights
-* [ ] Worker insights
-* [ ] Shop insights
-* [ ] Cash-flow insights
-* [ ] Business dashboard
-
----
-
-# Repository
+The repository is organized to separate architectural documentation from backend implementation.
 
 ```text
 Ratibu2.0/
 │
-├── docs/                    # Architectural Decision Records
-├── LICENSE
+├── docs/
+│   └── decisions/
+│       └── Architectural Decision Records
 │
-└── ratibu-backend/
-    ├── pom.xml
-    └── src/
+├── ratibu-backend/
+│   ├── pom.xml
+│   │
+│   └── src/
+│       ├── main/
+│       │   ├── java/com/ratibu/
+│       │   │   ├── account/
+│       │   │   ├── booking/
+│       │   │   ├── business/
+│       │   │   ├── cashbook/
+│       │   │   ├── catalog/
+│       │   │   ├── client/
+│       │   │   ├── expense/
+│       │   │   ├── financeevent/
+│       │   │   ├── insight/
+│       │   │   ├── membership/
+│       │   │   ├── payment/
+│       │   │   ├── shop/
+│       │   │   ├── worker/
+│       │   │   │
+│       │   │   ├── common/
+│       │   │   ├── config/
+│       │   │   ├── security/
+│       │   │   ├── sync/
+│       │   │   │
+│       │   │   └── RatibuApplication.java
+│       │   │
+│       │   └── resources/
+│       │       ├── application.yml
+│       │       └── db/migration/
+│       │
+│       └── test/
+│
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
+
+The aggregate packages establish architectural boundaries. Not every aggregate currently contains a completed feature implementation.
 
 ---
 
-# Current Goal
+## Getting Started
 
-The immediate goal is **not to implement every feature at once**.
+### Prerequisites
 
-The goal is to establish a repeatable implementation pattern using the architecture already defined.
+Make sure you have the following installed:
 
-The next stage is to take the first aggregate through the complete lifecycle:
+- Java Development Kit (JDK) 21.
+- PostgreSQL.
+- Git.
 
-```text
-Domain
-   ↓
-Application
-   ↓
-Infrastructure
-   ↓
-API
-   ↓
-Tests
+Maven Wrapper is included in the backend project, so a separate Maven installation is not required.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/mfalme1k0/Ratibu2.0.git
 ```
 
-Once that pattern has been validated, it can be applied deliberately to the remaining aggregates.
+### 2. Navigate to the backend
+
+```bash
+cd Ratibu2.0/ratibu-backend
+```
+
+### 3. Configure PostgreSQL
+
+Create a PostgreSQL database named `ratibu` and configure a database user with appropriate permissions.
+
+The default local configuration currently expects:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ratibu
+    username: ratibu
+    password: ratibu
+```
+
+Adjust these values to match your local PostgreSQL setup.
+
+### 4. Configure application secrets
+
+The local JWT configuration contains a development placeholder.
+
+Replace it with a properly generated secret for local testing. Never use the placeholder or commit production credentials to version control.
+
+### 5. Build the project
+
+On Linux or macOS:
+
+```bash
+./mvnw clean package
+```
+
+On Windows:
+
+```powershell
+mvnw.cmd clean package
+```
+
+### 6. Run the application
+
+```bash
+./mvnw spring-boot:run
+```
+
+The application is configured to use port `8080`.
+
+Database migrations are managed by Flyway, while Hibernate validates the schema rather than generating it automatically.
+
+---
+
+## Configuration
+
+The primary configuration file is:
+
+`ratibu-backend/src/main/resources/application.yml`
+
+Important configuration properties include:
+
+| Property | Purpose |
+|---|---|
+| `spring.datasource.url` | PostgreSQL connection URL |
+| `spring.datasource.username` | Database username |
+| `spring.datasource.password` | Database password |
+| `spring.flyway.enabled` | Enables database migrations |
+| `server.port` | Application server port |
+| `ratibu.jwt.secret` | JWT signing secret |
+| `ratibu.jwt.access-token-ttl-minutes` | Access token lifetime |
+| `ratibu.jwt.refresh-token-ttl-days` | Refresh token lifetime |
+
+For non-local environments, secrets should be supplied through environment-specific configuration or a secrets manager.
+
+---
+
+## Testing
+
+Run the complete backend test suite:
+
+```bash
+./mvnw clean test
+```
+
+Run tests without cleaning:
+
+```bash
+./mvnw test
+```
+
+Run the package build:
+
+```bash
+./mvnw clean package
+```
+
+Tests should cover domain invariants, application use cases, persistence behavior, API contracts, authorization and synchronization rules as these capabilities are implemented.
+
+---
+
+## Architectural Decision Records
+
+The `docs/decisions/` directory contains the Architectural Decision Records (ADRs).
+
+These documents are a core part of the project.
+
+They explain the reasoning behind decisions involving:
+
+- Aggregate boundaries.
+- Business and shop relationships.
+- Accounts and memberships.
+- Workers and clients.
+- Catalog and services.
+- Booking lifecycle.
+- Payments and expenses.
+- Financial events.
+- Cash-book management.
+- Business insights.
+- Authentication and authorization.
+- Offline-first architecture.
+- Stable identifiers.
+- Synchronization and conflict resolution.
+- Layering and dependency direction.
+
+The ADRs serve as the architectural reference when implementing new functionality.
+
+---
+
+## Development Roadmap
+
+Ratibu is being developed incrementally, with emphasis on preserving domain boundaries and validating architectural decisions.
+
+### Phase 1 — Architecture and Foundation
+
+- [x] Define the domain model.
+- [x] Establish aggregate boundaries.
+- [x] Document architectural decisions.
+- [x] Define the authorization model.
+- [x] Define the offline-first strategy.
+- [x] Establish financial domain rules.
+- [x] Create the Spring Boot backend.
+- [x] Establish the aggregate package structure.
+- [x] Introduce shared domain primitives.
+- [x] Establish the application entry point.
+
+### Phase 2 — Domain Implementation
+
+- [ ] Business and Shop.
+- [ ] Account and Membership.
+- [ ] Worker and Client.
+- [ ] Catalog and Services.
+- [ ] Booking.
+- [ ] Payment.
+- [ ] Expense.
+- [ ] Financial Event.
+- [ ] Cash Book.
+- [ ] Insight.
+
+### Phase 3 — Persistence
+
+- [ ] Define and implement database schemas.
+- [ ] Add Flyway migrations.
+- [ ] Implement JPA persistence models.
+- [ ] Implement repository adapters.
+- [ ] Implement persistence mappings.
+- [ ] Add persistence integration tests.
+
+### Phase 4 — Application Layer
+
+- [ ] Implement application use cases.
+- [ ] Implement application services.
+- [ ] Establish aggregate coordination.
+- [ ] Add application-layer tests.
+
+### Phase 5 — API and Security
+
+- [ ] Implement REST APIs.
+- [ ] Implement request validation.
+- [ ] Implement JWT authentication.
+- [ ] Implement membership-based authorization.
+- [ ] Add API integration tests.
+
+### Phase 6 — Synchronization
+
+- [ ] Implement synchronization operations.
+- [ ] Implement idempotency.
+- [ ] Implement synchronization status tracking.
+- [ ] Implement conflict dispatch.
+- [ ] Implement aggregate-specific conflict resolution.
+- [ ] Add offline synchronization tests.
+
+### Phase 7 — Client Applications
+
+- [ ] Android application.
+- [ ] Local persistence.
+- [ ] Offline operation queue.
+- [ ] Synchronization client.
+- [ ] Progressive Web Application.
+
+### Phase 8 — Business Insights
+
+- [ ] Revenue insights.
+- [ ] Service performance.
+- [ ] Worker performance.
+- [ ] Shop performance.
+- [ ] Cash-flow information.
+- [ ] Business dashboard.
+
+*Roadmap items represent development intentions, not necessarily completed functionality.*
+
+---
+
+## Contributing
+
+Ratibu 2.0 is an evolving project.
+
+Contributions should respect the existing architectural decisions and domain boundaries.
+
+Before introducing a significant architectural change:
+
+1. Understand the existing domain model.
+2. Review the relevant ADRs.
+3. Identify the affected aggregates and boundaries.
+4. Document significant architectural changes.
+5. Implement and test the change.
+
+The goal is to maintain a codebase where business rules remain understandable, testable and independent of infrastructure concerns.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+See [LICENSE](LICENSE) for details.
 
 ---
 
 ## Ratibu 2.0
 
-**Architecture first. Domain-driven. Offline-first. Built for the way small businesses actually operate.**
+**Built around the realities of running a small business.**
+
+The long-term goal is to give small businesses a dependable way to manage their operations, understand their finances and continue working even when connectivity is unreliable.
