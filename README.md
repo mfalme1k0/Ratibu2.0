@@ -789,7 +789,6 @@ Ratibu2.0/
 │
 ├── docs/                    # Architectural Decision Records
 ├── LICENSE
-├── scaffold.sh              # Backend architecture scaffold
 │
 └── ratibu-backend/
     ├── pom.xml

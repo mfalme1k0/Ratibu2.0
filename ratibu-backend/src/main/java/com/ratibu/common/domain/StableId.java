@@ -31,6 +31,11 @@ public final class StableId {
         return new StableId(UUID.fromString(value));
     }
 
+    /** Reconstructs a StableId from a UUID (e.g. from a JPA column). */
+    public static StableId fromUuid(UUID value) {
+        return new StableId(Objects.requireNonNull(value, "uuid must not be null"));
+    }
+
     public UUID asUuid() {
         return value;
     }
