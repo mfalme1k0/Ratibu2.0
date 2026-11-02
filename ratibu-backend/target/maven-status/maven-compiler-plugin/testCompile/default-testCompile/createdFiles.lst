@@ -1,7 +1,13 @@
 com/ratibu/business/application/InMemoryBusinessRepository.class
-com/ratibu/business/BusinessE2ETest.class
+com/ratibu/business/BusinessSliceE2ETest$InvariantsAtTheBoundary.class
 com/ratibu/business/infrastructure/BusinessRepositoryAdapterTest.class
-com/ratibu/business/domain/BusinessNameTest.class
 com/ratibu/business/application/CreateBusinessServiceTest.class
 com/ratibu/business/domain/BusinessTest.class
+com/ratibu/business/BusinessSliceE2ETest$SchemaContract.class
+com/ratibu/business/BusinessSliceE2ETest$MultipleBusinesses.class
+com/ratibu/business/domain/BusinessNameTest.class
+com/ratibu/business/BusinessSliceE2ETest$Lifecycle.class
+com/ratibu/business/BusinessSliceE2ETest.class
 com/ratibu/business/domain/CurrencyCodeTest.class
+com/ratibu/business/BusinessSliceE2ETest$OfflineSync.class
+com/ratibu/business/BusinessSliceE2ETest$DomainEvents.class
