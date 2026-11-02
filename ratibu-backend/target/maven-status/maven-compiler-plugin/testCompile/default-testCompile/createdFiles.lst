@@ -1,4 +1,5 @@
 com/ratibu/business/application/InMemoryBusinessRepository.class
+com/ratibu/business/BusinessE2ETest.class
 com/ratibu/business/infrastructure/BusinessRepositoryAdapterTest.class
 com/ratibu/business/domain/BusinessNameTest.class
 com/ratibu/business/application/CreateBusinessServiceTest.class

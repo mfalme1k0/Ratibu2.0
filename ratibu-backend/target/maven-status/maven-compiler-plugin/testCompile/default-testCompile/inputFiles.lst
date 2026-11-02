@@ -1,3 +1,4 @@
+/home/mfalme1k0/Projects/Ratibu2.0/ratibu-backend/src/test/java/com/ratibu/business/BusinessE2ETest.java
 /home/mfalme1k0/Projects/Ratibu2.0/ratibu-backend/src/test/java/com/ratibu/business/application/CreateBusinessServiceTest.java
 /home/mfalme1k0/Projects/Ratibu2.0/ratibu-backend/src/test/java/com/ratibu/business/application/InMemoryBusinessRepository.java
 /home/mfalme1k0/Projects/Ratibu2.0/ratibu-backend/src/test/java/com/ratibu/business/domain/BusinessNameTest.java
