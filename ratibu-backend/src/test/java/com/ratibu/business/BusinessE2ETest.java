@@ -51,7 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-class BusinessSliceE2ETest {
+class BusinessE2ETest {
 
     @Autowired
     private BusinessRepository repository;
