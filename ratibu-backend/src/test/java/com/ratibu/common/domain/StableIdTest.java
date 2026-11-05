@@ -23,7 +23,7 @@ class StableIdTest {
 
         assertNotNull(first.asUuid());
         assertNotEquals(first, second);
-        assertEquals(4, first.asUuid().version());
+        assertEquals(7, first.asUuid().version());
     }
 
     @Test

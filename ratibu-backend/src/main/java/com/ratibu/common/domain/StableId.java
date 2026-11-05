@@ -1,5 +1,7 @@
 package com.ratibu.common.domain;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ public final class StableId {
 
     /** Generates a new StableId. Safe to call offline, on any device. */
     public static StableId generate() {
-        return new StableId(UUID.randomUUID());
+        return new StableId(UuidCreator.getTimeOrderedEpoch()); // this is v7
     }
 
     /** Reconstructs a StableId from its canonical string form (e.g. from a client payload). */

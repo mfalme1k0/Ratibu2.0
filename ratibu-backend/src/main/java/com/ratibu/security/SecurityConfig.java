@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/shops").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
