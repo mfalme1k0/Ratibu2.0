@@ -8,7 +8,7 @@ It brings together business management, multiple shop locations, workers, client
 
 Ratibu 2.0 is a ground-up architectural redesign of the original Ratibu concept. Its focus is to establish a reliable domain model, clear business rules and an extensible architecture before building out the application features.
 
-**Project status:** Active development — architecture and backend foundation.
+**Project status:** Active development — architecture complete, backend vertical slices in progress. Business, Shop and Account are implemented end to end; the remaining aggregates are scaffolded.
 
 ---
 
@@ -16,6 +16,7 @@ Ratibu 2.0 is a ground-up architectural redesign of the original Ratibu concept.
 
 - [The Problem](#the-problem)
 - [Project Vision](#project-vision)
+- [Current Status](#current-status)
 - [Core Domain Model](#core-domain-model)
 - [Architectural Principles](#architectural-principles)
 - [Offline-First Architecture](#offline-first-architecture)
@@ -70,6 +71,35 @@ Ratibu is being designed to support:
 7. **Business insights** — derive useful operational and financial information from business records.
 
 The platform is intended to serve both Android and Progressive Web App (PWA) clients through a shared backend.
+
+---
+
+## Current Status
+
+Ratibu is built one aggregate at a time as **vertical slices**: domain, application, persistence, REST API and tests land together.
+
+| Aggregate | Status | Notes |
+|---|---|---|
+| Business | Implemented | Domain, `CreateBusiness` use case, JPA persistence, REST endpoint, unit and E2E tests. |
+| Shop | Implemented | Belongs to a Business; shop status modelled in the domain. |
+| Account | Implemented | Unique email business key; client-supplied `StableId` supported. |
+| Membership, Worker, Client, Catalog, Booking, Payment, Expense, Financial Event, Cash Book, Insight, Sync | Scaffolded | Package structure only (`package-info.java`); no behaviour yet. |
+
+### Available API
+
+All endpoints are under `/api/v1`. Create requests accept an optional client-generated ID (a UUID string) so offline clients can retry safely.
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/api/v1/businesses` | Create a business (`name`, `currency` as ISO 4217 code, optional `businessId`). |
+| `POST` | `/api/v1/businesses/{businessId}/shops` | Create a shop within a business (`name`, optional `shopId`). |
+| `POST` | `/api/v1/accounts` | Create an account (`email`, optional `displayName`, optional `accountId`). |
+
+Errors use a uniform body: `timestamp`, `status`, `error`, `message`, `path` and `details`.
+
+> **Security note:** `SecurityConfig` is stateless with CSRF disabled and requires authentication for every request except the three `POST` endpoints above and `/error`. JWT issuance and validation, and membership-based authorization, are not implemented yet, so those create endpoints are intentionally open for now.
+
+Database migrations currently cover `business`, `shop` and `account` (`V1`–`V3` under `db/migration`).
 
 ---
 
@@ -345,6 +375,7 @@ These primitives provide common foundations without forcing unrelated aggregates
 - JUnit 5 through Spring Boot Test.
 - Spring Security Test.
 - H2 for database testing.
+- JaCoCo for coverage reporting.
 
 ### Planned Clients
 
@@ -394,15 +425,23 @@ Ratibu2.0/
 │       │   └── resources/
 │       │       ├── application.yml
 │       │       └── db/migration/
+│       │           ├── V1__business.sql
+│       │           ├── V2__shop.sql
+│       │           └── V3__account.sql
 │       │
 │       └── test/
+│           ├── java/com/ratibu/
+│           └── resources/
+│               ├── application-test.yml
+│               └── application-e2e.yml
 │
 ├── .gitignore
+├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
 ```
 
-The aggregate packages establish architectural boundaries. Not every aggregate currently contains a completed feature implementation.
+The aggregate packages establish architectural boundaries. Business, Shop and Account are fully implemented; the other aggregate packages currently contain only `package-info.java` placeholders (see [Current Status](#current-status)).
 
 ---
 
@@ -413,10 +452,11 @@ The aggregate packages establish architectural boundaries. Not every aggregate c
 Make sure you have the following installed:
 
 - Java Development Kit (JDK) 21.
-- PostgreSQL.
+- Apache Maven 3.9 or newer.
+- PostgreSQL (only needed to run the application; the test suite uses in-memory H2).
 - Git.
 
-Maven Wrapper is included in the backend project, so a separate Maven installation is not required.
+The repository does not currently include the Maven Wrapper, so Maven must be installed separately.
 
 ### 1. Clone the repository
 
@@ -454,25 +494,23 @@ Replace it with a properly generated secret for local testing. Never use the pla
 
 ### 5. Build the project
 
-On Linux or macOS:
-
 ```bash
-./mvnw clean package
-```
-
-On Windows:
-
-```powershell
-mvnw.cmd clean package
+mvn clean package
 ```
 
 ### 6. Run the application
 
 ```bash
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-The application is configured to use port `8080`.
+The application is configured to use port `8080`. Once it is running, you can try the API:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/businesses \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Mama Njeri Salon", "currency": "KES"}'
+```
 
 Database migrations are managed by Flyway, while Hibernate validates the schema rather than generating it automatically.
 
@@ -503,25 +541,33 @@ For non-local environments, secrets should be supplied through environment-speci
 
 ## Testing
 
-Run the complete backend test suite:
+Run the complete backend test suite from `ratibu-backend/`:
 
 ```bash
-./mvnw clean test
+mvn clean test
 ```
 
-Run tests without cleaning:
+The suite does not need PostgreSQL. Tests run against in-memory H2 (in PostgreSQL mode) using Flyway migrations, so the real schema is exercised.
+
+Current test layers, per aggregate:
+
+- **Domain:** aggregate behaviour, value objects and invariants.
+- **Application:** use-case services against in-memory repositories.
+- **Infrastructure:** repository adapters and persistence mappings.
+- **API:** controller tests for request validation and error responses.
+- **End-to-end:** full-stack tests with the real `SecurityConfig` (`application-e2e.yml`).
+
+The shared kernel (`Money`, `StableId`) and `ApiError` are tested as well.
+
+### Coverage
+
+JaCoCo generates a coverage report during `mvn test`. To enforce the coverage gate locally or before a pull request:
 
 ```bash
-./mvnw test
+mvn verify -Pcoverage
 ```
 
-Run the package build:
-
-```bash
-./mvnw clean package
-```
-
-Tests should cover domain invariants, application use cases, persistence behavior, API contracts, authorization and synchronization rules as these capabilities are implemented.
+The gate requires at least 80% line coverage and 70% branch coverage. These thresholds are deliberately progressive and may be raised as more aggregates land.
 
 ---
 
@@ -569,11 +615,13 @@ Ratibu is being developed incrementally, with emphasis on preserving domain boun
 - [x] Establish the aggregate package structure.
 - [x] Introduce shared domain primitives.
 - [x] Establish the application entry point.
+- [x] Add test infrastructure and a coverage gate.
 
 ### Phase 2 — Domain Implementation
 
-- [ ] Business and Shop.
-- [ ] Account and Membership.
+- [x] Business and Shop.
+- [x] Account.
+- [ ] Membership.
 - [ ] Worker and Client.
 - [ ] Catalog and Services.
 - [ ] Booking.
@@ -585,27 +633,28 @@ Ratibu is being developed incrementally, with emphasis on preserving domain boun
 
 ### Phase 3 — Persistence
 
-- [ ] Define and implement database schemas.
-- [ ] Add Flyway migrations.
-- [ ] Implement JPA persistence models.
-- [ ] Implement repository adapters.
-- [ ] Implement persistence mappings.
-- [ ] Add persistence integration tests.
+- [x] Flyway migrations for Business, Shop and Account.
+- [x] JPA entities, repository adapters and mappings for Business, Shop and Account.
+- [x] Persistence tests for Business, Shop and Account.
+- [ ] Persistence for the remaining aggregates.
 
 ### Phase 4 — Application Layer
 
-- [ ] Implement application use cases.
-- [ ] Implement application services.
-- [ ] Establish aggregate coordination.
-- [ ] Add application-layer tests.
+- [x] Create use cases for Business, Shop and Account.
+- [x] Application-layer tests for these use cases.
+- [ ] Use cases for the remaining aggregates.
+- [ ] Establish cross-aggregate coordination.
 
 ### Phase 5 — API and Security
 
-- [ ] Implement REST APIs.
-- [ ] Implement request validation.
+- [x] REST create endpoints and request validation for Business, Shop and Account.
+- [x] Uniform API error responses.
+- [x] Stateless security baseline.
+- [x] API and end-to-end tests for these endpoints.
+- [ ] Read, update and lifecycle endpoints.
 - [ ] Implement JWT authentication.
 - [ ] Implement membership-based authorization.
-- [ ] Add API integration tests.
+- [ ] REST APIs for the remaining aggregates.
 
 ### Phase 6 — Synchronization
 
@@ -641,7 +690,7 @@ Ratibu is being developed incrementally, with emphasis on preserving domain boun
 
 Ratibu 2.0 is an evolving project.
 
-Contributions should respect the existing architectural decisions and domain boundaries.
+Contributions should respect the existing architectural decisions and domain boundaries. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for setup, workflow, coding and testing guidelines.
 
 Before introducing a significant architectural change:
 
