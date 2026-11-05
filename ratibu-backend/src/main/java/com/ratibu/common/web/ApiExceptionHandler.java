@@ -1,6 +1,7 @@
 package com.ratibu.common.web;
 
 import com.ratibu.common.exception.InvariantViolationException;
+import com.ratibu.common.exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,19 @@ import java.util.List;
  */
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiError.of(
+                        HttpStatus.NOT_FOUND.value(),
+                        "Not Found",
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        List.of()));
+    }
 
     @ExceptionHandler(InvariantViolationException.class)
     public ResponseEntity<ApiError> handleInvariant(InvariantViolationException ex, HttpServletRequest request) {

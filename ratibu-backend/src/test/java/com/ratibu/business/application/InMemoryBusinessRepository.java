@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Test double for {@link BusinessRepository}. Stores reconstituted aggregates
  * so load behaviour matches production (no leftover domain events).
  */
-final class InMemoryBusinessRepository implements BusinessRepository {
+public final class InMemoryBusinessRepository implements BusinessRepository {
 
     private final Map<StableId, Business> store = new ConcurrentHashMap<>();
 
