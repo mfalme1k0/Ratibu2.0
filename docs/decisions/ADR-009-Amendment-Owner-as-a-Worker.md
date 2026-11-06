@@ -1,8 +1,9 @@
-# ADR-008 Amendment: Owner as a Worker / Solo-Shop Business
+# ADR-009: Owner as a Worker / Solo-Shop Business
 
 **Status:** Proposed
 **Date:** 2026-09-01
-**Related ADR:** ADR-008 — User Roles, Permissions and Business Access Model
+**Related ADRs:** ADR-002 (Accounts & Memberships), ADR-008 (Permissions)
+**Note:** Formerly circulated as "ADR-008 Amendment"; numbered ADR-009 per ADR-012 §5 and ADR-000 housekeeping.
 
 ---
 
@@ -157,7 +158,13 @@ The system should not require a separate Worker account.
 
 # 6. Optional Worker Profile
 
-A Worker profile should be considered a capability/profile attached to a User rather than a completely separate identity.
+**Decision (ADR-000 housekeeping):** Worker is **not** only a peer Membership role. A **Worker Profile is an optional capability** that attaches to a **Business Membership** (not the global User Account). That way:
+
+* An Owner or Manager may hold a Worker Profile on the same membership and perform services without a second account.
+* A person who is a Worker at Business A and Owner at Business B does not conflate worker capabilities across businesses.
+* MembershipRole remains `OWNER | MANAGER | WORKER` for coarse access (ADR-002 §6); the Worker Profile is the operational capability layer on top of a membership.
+
+A Worker profile should be considered a capability/profile attached to a **Business Membership** rather than a completely separate identity or the raw User Account.
 
 Conceptually:
 

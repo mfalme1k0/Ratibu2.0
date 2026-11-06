@@ -5,6 +5,8 @@
 **Decision Type:** Domain / Architecture
 **Project:** Ratibu
 
+**Relationship to ADR-006:** This ADR supersedes and extends the financial model introduced in ADR-006 with the detail needed for implementation (overpayment, owner cash injection/withdrawal, currency, decimal precision, and transaction attribution). Where ADR-006 and ADR-011 conflict, ADR-011 wins.
+
 ---
 
 # 1. Context

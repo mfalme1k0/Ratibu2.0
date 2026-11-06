@@ -289,9 +289,9 @@ Credit/outstanding should be represented as an unpaid obligation rather than pre
 
 11. Financial Transaction
 
-Ratibu will use a broader concept of Financial Transaction to represent monetary events.
+**Framing (ADR-000 housekeeping):** *Financial Transaction* is a **conceptual category**, not an aggregate of its own and not a single unified table. The actual aggregates are **Payment**, **Expense**, **Refund**, and **Cash Adjustment** (and related cash movements such as owner injection/withdrawal where modelled). Each retains its own type and rules.
 
-Examples:
+Examples of events in this category:
 
 Payment
 Expense
@@ -300,13 +300,11 @@ Owner Withdrawal
 Refund
 Cash Adjustment
 
-However, these should retain their specific types.
-
-We should not create a generic transaction that simply has:
+We should not collapse these into a generic row that simply has:
 
 amount = -500
 
-Instead:
+Instead each aggregate carries meaning:
 
 type = EXPENSE
 amount = 500
@@ -316,7 +314,7 @@ or:
 type = PAYMENT
 amount = 500
 
-This preserves meaning.
+This preserves meaning while allowing the Cash Book to project a unified chronological view of monetary effects.
 
 12. Expense
 
@@ -440,12 +438,12 @@ Booking
 
 Responsible for booking lifecycle.
 
-For example:
+Lifecycle states are defined in **ADR-005** (authoritative). In summary:
 
-PENDING
-CONFIRMED
-COMPLETED
-CANCELLED
+SCHEDULED → IN_PROGRESS → COMPLETED
+with branches to CANCELLED and NO_SHOW
+
+(The earlier shorthand PENDING / CONFIRMED / COMPLETED / CANCELLED in this document was illustrative only and is superseded by ADR-005.)
 
 Booking rules should live around the Booking domain rather than inside the UI.
 
@@ -482,8 +480,9 @@ The high-level domain relationship becomes:
                        │
           ┌────────────┴────────────┐
           │                         │
-        USERS                      SHOPS
-                                    │
+   MEMBERSHIPS                     SHOPS
+   (Account↔Business                │
+    + Role; see ADR-002)            │
              ┌──────────────────────┼──────────────────────┐
              │          │           │          │            │
           SERVICES   BOOKINGS    PAYMENTS   EXPENSES    CASH EVENTS
@@ -491,8 +490,9 @@ The high-level domain relationship becomes:
                  ┌──────┴──────┐
                  │             │
                CLIENT        WORKER
-                               │
-                              USER
+                          (profile on
+                           membership;
+                           may link Account)
 
 And financially:
 

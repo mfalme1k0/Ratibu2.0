@@ -8,7 +8,7 @@ It brings together business management, multiple shop locations, workers, client
 
 Ratibu 2.0 is a ground-up architectural redesign of the original Ratibu concept. Its focus is to establish a reliable domain model, clear business rules and an extensible architecture before building out the application features.
 
-**Project status:** Active development — architecture complete, backend vertical slices in progress. Business, Shop and Account are implemented end to end; the remaining aggregates are scaffolded.
+**Project status:** Active development — architecture complete, backend vertical slices in progress. Business, Shop, Account and Membership are implemented end to end; the remaining aggregates are scaffolded.
 
 ---
 
@@ -83,7 +83,8 @@ Ratibu is built one aggregate at a time as **vertical slices**: domain, applicat
 | Business | Implemented | Domain, `CreateBusiness` use case, JPA persistence, REST endpoint, unit and E2E tests. |
 | Shop | Implemented | Belongs to a Business; shop status modelled in the domain. |
 | Account | Implemented | Unique email business key; client-supplied `StableId` supported. |
-| Membership, Worker, Client, Catalog, Booking, Payment, Expense, Financial Event, Cash Book, Insight, Sync | Scaffolded | Package structure only (`package-info.java`); no behaviour yet. |
+| Membership | Implemented | Links Account to Business with role `OWNER` \| `MANAGER` \| `WORKER`. |
+| Worker, Client, Catalog, Booking, Payment, Expense, Financial Event, Cash Book, Insight, Sync | Scaffolded | Package structure only (`package-info.java`); no behaviour yet. |
 
 ### Available API
 
@@ -114,7 +115,7 @@ The domain model currently identifies the following aggregates:
 | Business | Represents the business organization. |
 | Shop | Represents an operational location. |
 | Account | Represents a user's identity. |
-| Membership | Defines a user's relationship with a business. |
+| Membership | Implemented | Links Account to Business with role OWNER\|MANAGER\|WORKER.
 | Worker | Manages business worker profiles and capabilities. |
 | Client | Represents business customers. |
 | Catalog | Manages services and their configuration. |
@@ -441,7 +442,7 @@ Ratibu2.0/
 └── README.md
 ```
 
-The aggregate packages establish architectural boundaries. Business, Shop and Account are fully implemented; the other aggregate packages currently contain only `package-info.java` placeholders (see [Current Status](#current-status)).
+The aggregate packages establish architectural boundaries. Business, Shop, Account and Membership are fully implemented; several other aggregate packages still contain only `package-info.java` placeholders (see [Current Status](#current-status)).
 
 ---
 
