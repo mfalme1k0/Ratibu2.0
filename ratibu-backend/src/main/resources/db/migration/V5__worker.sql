@@ -12,7 +12,7 @@ CREATE TABLE worker (
     CONSTRAINT fk_worker_business
         FOREIGN KEY (business_id) REFERENCES business (id) ON DELETE CASCADE,
     CONSTRAINT fk_worker_membership
-        FOREIGN KEY (membership_id) REFERENCES membership (id),
+        FOREIGN KEY (membership_id) REFERENCES membership (id) ON DELETE SET NULL,
     CONSTRAINT uq_worker_membership UNIQUE (membership_id)
 );
 

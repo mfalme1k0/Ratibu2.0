@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/shops").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/memberships").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/workers").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/clients").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
