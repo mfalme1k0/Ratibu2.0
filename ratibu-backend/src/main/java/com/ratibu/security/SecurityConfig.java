@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/memberships").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/workers").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/clients").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/businesses/*/services").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
